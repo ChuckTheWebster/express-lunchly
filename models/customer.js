@@ -69,9 +69,32 @@ class Customer {
         [name]
     )
 
-    const customers = results.rows
+    const customers = results.rows;
 
-    return customers.map(c => new Customer(c))
+    return customers.map(c => new Customer(c));
+  }
+
+  /** get top ten customers with most rezzos */
+  static async getTopTen() {
+    const results = await db.query(
+      `SELECT c.id,
+              c.first_name AS "firstName",
+              c.last_name  AS "lastName",
+              c.phone,
+              c.notes,
+              COUNT(reservations) as "numReservations"
+        FROM customers AS c
+        JOIN reservations ON c.id = reservations.customer_id
+          GROUP BY c.id,
+                   c.first_name,
+                   c.last_name,
+                   c.phone,
+                   c.notes
+          ORDER BY COUNT (reservations) DESC
+          LIMIT 10`
+    );
+
+    return results.rows.map(c => new Customer(c));
   }
 
   /** get all reservations for this customer. */
@@ -110,11 +133,6 @@ class Customer {
   fullName() {
     return `${this.firstName} ${this.lastName}`
   }
-
-
-
-
-
 
 }
 

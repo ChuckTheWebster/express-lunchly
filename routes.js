@@ -11,30 +11,33 @@ const Reservation = require("./models/reservation");
 const router = new express.Router();
 
 /** Homepage: show list of customers. */
-
 router.get("/", async function (req, res, next) {
   const customers = await Customer.all();
+
   return res.render("customer_list.html", { customers });
 });
 
-/** : show list of customers. */
-
+/** Show list of search results from query. */
 router.get("/search", async function (req, res, next) {
-  //TO FINISH
   const name = req.query.search
-
   const customers = await Customer.getCustomersByName(name);
+
+  return res.render("customer_list.html", { customers });
+});
+
+/** Show list top ten customers with most reservations. */
+router.get("/top-ten", async function (req, res, next) {
+  const customers = await Customer.getTopTen();
+  console.log(customers)
   return res.render("customer_list.html", { customers });
 });
 
 /** Form to add a new customer. */
-
 router.get("/add/", async function (req, res, next) {
   return res.render("customer_new_form.html");
 });
 
 /** Handle adding a new customer. */
-
 router.post("/add/", async function (req, res, next) {
   if (req.body === undefined) {
     throw new BadRequestError();
@@ -47,7 +50,6 @@ router.post("/add/", async function (req, res, next) {
 });
 
 /** Show a customer, given their ID. */
-
 router.get("/:id/", async function (req, res, next) {
   const customer = await Customer.get(req.params.id);
 
@@ -57,7 +59,6 @@ router.get("/:id/", async function (req, res, next) {
 });
 
 /** Show form to edit a customer. */
-
 router.get("/:id/edit/", async function (req, res, next) {
   const customer = await Customer.get(req.params.id);
 
@@ -65,7 +66,6 @@ router.get("/:id/edit/", async function (req, res, next) {
 });
 
 /** Handle editing a customer. */
-
 router.post("/:id/edit/", async function (req, res, next) {
   if (req.body === undefined) {
     throw new BadRequestError();
@@ -81,7 +81,6 @@ router.post("/:id/edit/", async function (req, res, next) {
 });
 
 /** Handle adding a new reservation. */
-
 router.post("/:id/add-reservation/", async function (req, res, next) {
   if (req.body === undefined) {
     throw new BadRequestError();
