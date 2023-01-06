@@ -6,7 +6,6 @@ const db = require("../db");
 const Reservation = require("./reservation");
 
 /** Customer of the restaurant. */
-
 class Customer {
   constructor({ id, firstName, lastName, phone, notes }) {
     this.id = id;
@@ -17,7 +16,6 @@ class Customer {
   }
 
   /** find all customers. */
-
   static async all() {
     const results = await db.query(
           `SELECT id,
@@ -32,7 +30,6 @@ class Customer {
   }
 
   /** get a customer by ID. */
-
   static async get(id) {
     const results = await db.query(
           `SELECT id,
@@ -56,14 +53,33 @@ class Customer {
     return new Customer(customer);
   }
 
-  /** get all reservations for this customer. */
+  /** search for customer by name */
+  static async getCustomersByName(name) {
 
+    // TODO: search any case letters
+    const results = await db.query(
+      `SELECT id,
+              first_name AS "firstName",
+              last_name  AS "lastName",
+              phone,
+              notes
+        FROM customers
+          WHERE last_name = $1 OR first_name = $1
+            ORDER BY last_name, first_name`,
+        [name]
+    )
+
+    const customers = results.rows
+
+    return customers.map(c => new Customer(c))
+  }
+
+  /** get all reservations for this customer. */
   async getReservations() {
     return await Reservation.getReservationsForCustomer(this.id);
   }
 
   /** save this customer. */
-
   async save() {
     if (this.id === undefined) {
       const result = await db.query(
